@@ -9,6 +9,7 @@ const path = require('path');
 const app = express();
 
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname)));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
@@ -170,26 +171,13 @@ app.post('/verify-otp', (req, res) => {
   otpStore.delete(email);
   res.json({ success: true, message: 'Verifikasi berhasil!' });
 });
+module.exports = app;
 
-const file = require.resolve('./index.js');
-function load() {
-  console.log(`Loading ${file}`);
-  require(file);
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Terhubung Ke Server, port ${PORT}`);
+  }).on('error', (err) => {
+    console.log("gagal:", err.message);
+  });
 }
-
-fs.watchFile(file, { interval: 500 }, () => {
-  console.log(`Update terdeteksi: ${file}`);
-  delete require.cache[file];
-
-  // reset semua listener biar server lama bener2 lepas port
-  process.emit('cleanup');
-  load();
-});
-
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Terhubung Ke Server, port ${PORT}`);
-}).on('error', (err) => {
-  console.log("gagal:", err.message);
-});
-load();

@@ -1,9 +1,3 @@
 {
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/tools", "destination": "/tools.html" },
-    { "source": "/tools/base64", "destination": "/tools/base64.html" },
-    { "source": "/tools/sendotp", "destination": "/tools/sendotp.html" }
-  ]
+  "cleanUrls": true
 }

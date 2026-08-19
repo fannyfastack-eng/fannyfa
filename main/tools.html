@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FannyFa Exploit - System Tools</title>
+  
+  <!-- Google Fonts: JetBrains Mono & Space Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    :root {
+      --black: #000;
+      --white: #fff;
+      --gray: #777;
+      --light: #e9e9e9;
+      --border: #d5d5d5;
+      --term-green: #0f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--white);
+      color: var(--black);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Grid Line Background Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: 
+        linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Noise/Scanline Line Overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.035),
+        rgba(0, 0, 0, 0.035) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* NAVBAR AREA */
+    header {
+      width: 100%;
+      border-bottom: 2px solid var(--black);
+      background-color: var(--white);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 12px 24px;
+    }
+
+    .navbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--black);
+    }
+
+    /* Logo Lingkaran Beranimasi */
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      position: relative;
+      transition: transform 0.3s ease;
+      animation: pulse-ring 3s infinite linear;
+    }
+
+    .brand-icon::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 1px dashed var(--black);
+      animation: spin 10s infinite linear;
+    }
+
+    .brand-text {
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    /* Hamburger Button */
+    .menu-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--black);
+      background: var(--white);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .menu-btn span {
+      width: 18px;
+      height: 2px;
+      background-color: var(--black);
+      transition: all 0.2s ease;
+    }
+
+    .menu-btn:hover {
+      background-color: var(--black);
+      transform: scale(1.05);
+    }
+
+    .menu-btn:hover span {
+      background-color: var(--white);
+    }
+
+    /* MAIN CONTAINER */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      width: 100%;
+      z-index: 1;
+      flex: 1;
+    }
+
+    /* HERO & HEADER SECTION */
+    .hero-section {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      border: 1.5px solid var(--black);
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      background-color: var(--white);
+    }
+
+    .glitch-title {
+      font-size: 38px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -1.5px;
+      position: relative;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    /* Search Bar */
+    .search-box {
+      max-width: 500px;
+      margin: 24px auto 0;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border: 2px solid var(--black);
+      background-color: var(--white);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--black);
+      outline: none;
+      box-shadow: 6px 6px 0 var(--black);
+      transition: all 0.2s ease;
+      border-radius: 0;
+    }
+
+    .search-input:focus {
+      transform: translate(-2px, -2px);
+      box-shadow: 8px 8px 0 var(--black);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+    }
+
+    /* TOOLS GRID SECTION */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+
+    /* Kartu Tool */
+    .tool-card {
+      background-color: var(--white);
+      border: 2px solid var(--black);
+      box-shadow: 8px 8px 0 var(--light);
+      padding: 24px;
+      text-decoration: none;
+      color: var(--black);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.1, 0.7, 0.1, 1), box-shadow 0.2s cubic-bezier(0.1, 0.7, 0.1, 1);
+      overflow: hidden;
+    }
+
+    .tool-card::after {
+      content: "LAUNCH //";
+      position: absolute;
+      top: 10px;
+      right: -60px;
+      background: var(--black);
+      color: var(--white);
+      font-size: 8px;
+      font-weight: 700;
+      padding: 2px 20px;
+      transform: rotate(45deg);
+      transition: right 0.2s ease;
+    }
+
+    .tool-card:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 12px 12px 0 var(--black);
+    }
+
+    .tool-card:hover::after {
+      right: -30px;
+    }
+
+    /* Animasi Click Pulsing */
+    .tool-card:active {
+      animation: clickPulse 0.3s ease;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .tool-icon {
+      font-size: 24px;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--light);
+    }
+
+    .tool-name {
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .tool-desc {
+      font-size: 12px;
+      color: var(--gray);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .tag-category {
+      border: 1px solid var(--black);
+      padding: 2px 6px;
+      text-transform: uppercase;
+    }
+
+    .action-text {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 2px solid var(--black);
+      background-color: var(--white);
+      padding: 24px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--gray);
+      z-index: 10;
+    }
+
+    /* KEYFRAMES ANIMASI */
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(0, 0, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+    }
+
+    @keyframes clickPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.96) translate(2px, 2px); }
+      100% { transform: scale(1); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .glitch-title { font-size: 28px; }
+      .tools-grid { grid-template-columns: 1fr; }
+    }
+
+    .hamburger {
+      display: none;
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--black);
+      border-radius: 50%;
+      background: transparent;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      z-index: 1001;
+    }
+
+    .hamburger i {
+      font-size: 18px;
+      color: var(--black);
+      transition: transform .3s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
+    }
+
+    .hamburger .bi-x-lg {
+      position: absolute;
+      opacity: 0;
+      transform: rotate(-90deg) scale(.5);
+    }
+
+    .hamburger.open .bi-list {
+      opacity: 0;
+      transform: rotate(90deg) scale(.5);
+    }
+
+    .hamburger.open .bi-x-lg {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+    }
+    
+    .mobile-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-12px);
+      transition: opacity .35s ease, transform .35s ease, visibility 0s linear .35s;
+    }
+
+    .mobile-nav-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition: opacity .35s ease, transform .35s ease, visibility 0s linear 0s;
+    }
+
+    .mobile-nav-overlay a {
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+      color: var(--black);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      border: 1.5px solid var(--black);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .3s ease, transform .3s ease, background .2s ease, color .2s ease;
+    }
+
+    .mobile-nav-overlay.active a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mobile-nav-overlay.active a:nth-child(1) { transition-delay: .08s; }
+    .mobile-nav-overlay.active a:nth-child(2) { transition-delay: .14s; }
+    .mobile-nav-overlay.active a:nth-child(3) { transition-delay: .20s; }
+    .mobile-nav-overlay.active a:nth-child(4) { transition-delay: .26s; }
+
+    .mobile-nav-overlay a:active {
+      background: var(--black);
+      color: #fff;
+    }
+
+    .mobile-nav-overlay .tools-icon {
+      font-size: 10px;
+      transition: transform .35s ease;
+    }
+
+    .mobile-nav-overlay a.open .tools-icon {
+      transform: rotate(180deg);
+    }
+
+    @media (max-width: 700px) {
+      .nav {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR sesuai gambar -->
+  <header>
+    <div class="navbar">
+      <a href="/" class="nav-brand">
+        <div class="brand-icon">FF</div>
+        <span class="brand-text">FannyFa Exploit</span>
+      </a>
+
+      <!-- Hamburger 3 Line bulat flex-end -->
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+      <i class="bi bi-list"></i>
+      <i class="bi bi-x-lg"></i>
+    </button>
+          <div class="mobile-nav-overlay" id="mobileNavOverlay">
+    <a href="#home" class="mobile-nav-link">HOME</a>
+    <a href="#terminal" class="mobile-nav-link">SYSTEM</a>
+    <a href="/tools" class="mobile-nav-link" id="toolsLinkMobile">
+      TOOLS
+      <i class="bi bi-chevron-down tools-icon"></i>
+    </a>
+    <a href="#footer" class="mobile-nav-link">CONTACT</a>
+  </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <section class="hero-section">
+      <div class="status-badge">[ SYSTEM STATUS : ACTIVE ]</div>
+      <h1 class="glitch-title">SYSTEM_TOOLS</h1>
+      <p style="font-size: 12px; color: var(--gray);">Direct access utilities & payload modules.</p>
+
+      <!-- Input Find Tools -->
+      <div class="search-box">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="findToolsInput" class="search-input" placeholder="Find tools by name or payload..." onkeyup="filterTools()">
+      </div>
+    </section>
+
+    <!-- SECTION TOOLS -->
+    <section class="tools-grid" id="toolsGrid">
+      
+      <!-- Tool 1: Link ke /tools/toolspertama -->
+      <a href="/tools/sendotp" class="tool-card">
+        <div>
+          <div class="card-top">
+            <div class="tool-icon"><i class="bi bi-envelope"></i></div>
+            <div class="tool-name">OTP Spam</div>
+          </div>
+          <p class="tool-desc">Spam engine mutakhir untuk mengkloning dan mengirimkan pesan massal tanpa jeda ke target operasi.</p>
+        </div>
+        <div class="card-footer">
+          <span class="tag-category">UTILITY</span>
+          <span class="action-text">EXECUTE <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- Tool 2: Base64 Converter -->
+      <a href="/tools/base64" class="tool-card">
+        <div>
+          <div class="card-top">
+            <div class="tool-icon"><i class="bi bi-file-code"></i></div>
+            <div class="tool-name">Base64 Converter</div>
+          </div>
+          <p class="tool-desc">Encoder dan decoder string instan untuk mengubah teks biasa ke format Base64 dan sebaliknya secara lokal.</p>
+        </div>
+        <div class="card-footer">
+          <span class="tag-category">UTILITY</span>
+          <span class="action-text">EXECUTE <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </a>
+      
+      <!-- Tool 3 -->
+      <a href="/tools/hash-cracker" class="tool-card">
+        <div>
+          <div class="card-top">
+            <div class="tool-icon"><i class="bi bi-key"></i></div>
+            <div class="tool-name">Hash Decoder</div>
+          </div>
+          <p class="tool-desc">Enkripsi dan dekripsi instan berbagai format hash seperti MD5, SHA1, dan SHA256 secara lokal.</p>
+        </div>
+        <div class="card-footer">
+          <span class="tag-category">CRYPTO</span>
+          <span class="action-text">EXECUTE <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- Tool 4 -->
+      <a href="/tools/headers-checker" class="tool-card">
+        <div>
+          <div class="card-top">
+            <div class="tool-icon"><i class="bi bi-shield-check"></i></div>
+            <div class="tool-name">Header Analyzer</div>
+          </div>
+          <p class="tool-desc">Memeriksa konfigurasi HTTP Security Headers (CSP, HSTS, X-Frame) pada server web target.</p>
+        </div>
+        <div class="card-footer">
+          <span class="tag-category">AUDIT</span>
+          <span class="action-text">EXECUTE <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </a>
+
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    [ ACCESS : GRANTED ] &nbsp;|&nbsp; FannyFa Exploit &copy; 2026 &nbsp;|&nbsp; [ MODE : EXPERIMENTAL ]
+  </footer>
+
+  <script>
+    /* Fungsi Search Sederhana */
+    function filterTools() {
+      const input = document.getElementById('findToolsInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.tool-card');
+
+      cards.forEach(card => {
+        const name = card.querySelector('.tool-name').innerText.toLowerCase();
+        const desc = card.querySelector('.tool-desc').innerText.toLowerCase();
+        
+        if (name.includes(input) || desc.includes(input)) {
+          card.style.display = "flex";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    //
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+
+    function closeMobileNav() {
+      hamburgerBtn.classList.remove('open');
+      mobileNavOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function openMobileNav() {
+      hamburgerBtn.classList.add('open');
+      mobileNavOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    hamburgerBtn.addEventListener('click', function () {
+      const isOpen = hamburgerBtn.classList.contains('open');
+      isOpen ? closeMobileNav() : openMobileNav();
+    });
+
+    document.querySelectorAll('.mobile-nav-link').forEach(function (link) {
+      if (link.id === 'toolsLinkMobile') return;
+      link.addEventListener('click', closeMobileNav);
+    });
+
+    const toolsLinkMobile = document.getElementById('toolsLinkMobile');
+
+    toolsLinkMobile.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      toolsLinkMobile.classList.toggle('open');
+
+      const target = toolsLinkMobile.getAttribute('href');
+
+      setTimeout(function () {
+        window.location.href = target;
+      }, 320);
+    });
+  </script>
+
+</body>
+</html>

@@ -171,9 +171,11 @@ app.post('/verify-otp', (req, res) => {
   otpStore.delete(email);
   res.json({ success: true, message: 'Verifikasi berhasil!' });
 });
+// WAJIB: Export app agar Vercel membaca Express sebagai Serverless
 module.exports = app;
 
-if (process.env.NODE_ENV !== 'production') {
+// Jalankan app.listen HANYA jika dijalankan secara lokal (bukan di Vercel)
+if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Terhubung Ke Server, port ${PORT}`);

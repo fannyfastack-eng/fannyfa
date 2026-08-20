@@ -9,6 +9,15 @@
   let pendingFiles = [];
   let historyCache = [];
 
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   const el = {
     welcome: document.getElementById("welcomeSection"),
     messages: document.getElementById("messages"),
@@ -163,8 +172,14 @@
     });
   });
 
+  const MAX_FILE_MB = 8;
+
   el.fileInput.addEventListener("change", () => {
     Array.from(el.fileInput.files).forEach((file) => {
+      if (file.size > MAX_FILE_MB * 1024 * 1024) {
+        alert(`"${file.name}" kelewat gede (maks ${MAX_FILE_MB}MB). Lewatin file ini.`);
+        return;
+      }
       pendingFiles.push(file);
     });
     renderAttachPreview();
@@ -415,17 +430,28 @@
     addTypingIndicator();
 
     try {
-      const formData = new FormData();
-      formData.append("deviceId", deviceId);
-      formData.append("sessionId", sessionId || "");
-      formData.append("provider", selected.provider);
-      formData.append("model", selected.model);
-      formData.append("message", text);
-      filesToSend.forEach((f) => formData.append("attachments", f));
+      const attachmentsPayload = [];
+      for (const file of filesToSend) {
+        const dataBase64 = await fileToBase64(file);
+        attachmentsPayload.push({
+          name: file.name,
+          type: file.type || "application/octet-stream",
+          dataBase64
+        });
+      }
 
       const res = await fetch("/api/chat", {
         method: "POST",
-        body: formData
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deviceId,
+          sessionId: sessionId || "",
+          provider: selected.provider,
+          model: selected.model,
+          message: text,
+          systemPrompt: window.SettingAI.getSystemPrompt(),
+          attachments: attachmentsPayload
+        })
       });
 
       const data = await res.json();

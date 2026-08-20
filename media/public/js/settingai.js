@@ -35,6 +35,7 @@
 
   const LS_MODEL_KEY = "ff_ai_selected_model";
   const LS_PROVIDER_KEY = "ff_ai_selected_provider";
+  const LS_SYSTEM_PROMPT_KEY = "ff_ai_system_prompt";
 
   function getDeviceId() {
     let id = localStorage.getItem("ff_ai_device_id");
@@ -56,6 +57,14 @@
     localStorage.setItem(LS_PROVIDER_KEY, provider);
     localStorage.setItem(LS_MODEL_KEY, model);
     window.dispatchEvent(new CustomEvent("ff:model-changed", { detail: { provider, model } }));
+  }
+
+  function getSystemPrompt() {
+    return localStorage.getItem(LS_SYSTEM_PROMPT_KEY) || "";
+  }
+
+  function setSystemPrompt(text) {
+    localStorage.setItem(LS_SYSTEM_PROMPT_KEY, text || "");
   }
 
   async function fetchKeyStatus() {
@@ -86,9 +95,13 @@
     const btnClose = document.getElementById("closeSettings");
     const btnSave = document.getElementById("btnSaveKeys");
     const msgEl = document.getElementById("settingsMsg");
+    const systemPromptInput = document.getElementById("systemPromptInput");
+    const btnSaveSystemPrompt = document.getElementById("btnSaveSystemPrompt");
+    const systemPromptMsg = document.getElementById("systemPromptMsg");
 
     async function open() {
       modal.classList.add("active");
+      systemPromptInput.value = getSystemPrompt();
       const status = await fetchKeyStatus();
       PROVIDERS.forEach((p) => {
         const field = modal.querySelector(`.provider-field[data-provider="${p}"] .key-input`);
@@ -138,13 +151,25 @@
         await saveKeys(keysObj);
         msgEl.textContent = "Pengaturan berhasil disimpan";
         msgEl.className = "msg success";
-        modal.querySelectorAll(".key-input").forEach((i) => (i.value = ""));
+        modal.querySelectorAll(".key-input").forEach((i) => {
+          if (i.id !== "systemPromptInput") i.value = "";
+        });
       } catch (e) {
         msgEl.textContent = "Gagal menyimpan, coba lagi";
         msgEl.className = "msg";
       } finally {
         btnSave.disabled = false;
       }
+    });
+
+    btnSaveSystemPrompt.addEventListener("click", () => {
+      setSystemPrompt(systemPromptInput.value.trim());
+      systemPromptMsg.textContent = "System prompt tersimpan di perangkat ini";
+      systemPromptMsg.className = "msg success";
+      setTimeout(() => {
+        systemPromptMsg.textContent = "";
+        systemPromptMsg.className = "msg";
+      }, 2500);
     });
   }
 
@@ -156,6 +181,8 @@
     getDeviceId,
     getSelectedModel,
     setSelectedModel,
+    getSystemPrompt,
+    setSystemPrompt,
     fetchKeyStatus,
     saveKeys
   };

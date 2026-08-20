@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-
+require("dotenv").config();
 const app = express();
 
 app.use(cookieParser());
@@ -13,7 +13,9 @@ app.use(express.static(path.join(__dirname)));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
-
+const chatRoutes = require("./routes/chat.routes");
+const sessionRoutes = require("./routes/session.routes");
+const settingsRoutes = require("./routes/settings.routes");
 const otpStore = new Map();
 
 const transporter = nodemailer.createTransport({
@@ -22,6 +24,15 @@ const transporter = nodemailer.createTransport({
     user: 'fannyfadeveloper@gmail.com', // ganti
     pass: 'hywx wwff olsz howu'         // App Password Gmail
   }
+});
+app.use(express.static(path.join(__dirname, "media", "public")));
+
+// API routes
+app.use("/api", chatRoutes);
+app.use("/api", sessionRoutes);
+app.use("/api", settingsRoutes);
+app.get("/ai", (req, res) => {
+  res.sendFile(path.join(__dirname, "media", "public", "ai-chat.html"));
 });
 
 app.get('/tools/sendotp', (req, res) => {

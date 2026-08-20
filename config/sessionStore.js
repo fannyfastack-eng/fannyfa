@@ -4,16 +4,22 @@
    data/sessions/<sessionId>.json — supaya per-device/sesi kepisah.
 ========================================================= */
 
-const fs = require("fs");
-const path = require("path");
-const crypto = require("crypto");
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 
-const SESSIONS_DIR = path.join(__dirname, "..", "data", "sessions");
+// Alihkan ke /tmp jika berjalan di Vercel
+const SESSIONS_DIR = process.env.VERCEL
+  ? path.join('/tmp', 'sessions')
+  : path.join(__dirname, '../data/sessions');
 
 function ensureDir() {
-  if (!fs.existsSync(SESSIONS_DIR)) fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+  if (!fs.existsSync(SESSIONS_DIR)) {
+    fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+  }
 }
 
+// ... sisa kode tetap sama
 function newSessionId() {
   return "sess_" + crypto.randomBytes(8).toString("hex");
 }

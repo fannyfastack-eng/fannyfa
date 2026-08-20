@@ -10,11 +10,31 @@
    DEEPSEEK_API_KEY=...
    QWEN_API_KEY=...
 ========================================================= */
+const fs = require('fs');
+const path = require('path');
 
-const fs = require("fs");
-const path = require("path");
+// Alihkan ke /tmp jika berjalan di Vercel
+const KEYS_FILE = process.env.VERCEL
+  ? path.join('/tmp', 'keys.json')
+  : path.join(__dirname, '../data/keys.json');
 
-const KEYS_FILE = path.join(__dirname, "..", "data", "keys.json");
+function ensureFile() {
+  const dir = path.dirname(KEYS_FILE);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  if (!fs.existsSync(KEYS_FILE)) {
+    fs.writeFileSync(KEYS_FILE, JSON.stringify({
+      activeProvider: 'gemini',
+      geminiKey: process.env.GEMINI_API_KEY || '',
+      openaiKey: process.env.OPENAI_API_KEY || '',
+      openaiBaseUrl: 'https://api.openai.com/v1',
+      openaiModel: 'gpt-3.5-turbo'
+    }, null, 2));
+  }
+}
+
+// ... sisa kode tetap sama
 
 const PROVIDERS = ["gemini", "groq", "openai", "deepseek", "qwen"];
 

@@ -284,7 +284,7 @@
   showMsg(msg, "⏳ Mengirim OTP...", "white");
 
   try {
-    const res = await fetch('http://localhost:3000/send-otp', {
+    const res = await fetch('https://tools.fannyfa.my.id/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, number })

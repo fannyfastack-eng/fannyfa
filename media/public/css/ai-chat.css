@@ -17,15 +17,21 @@
 
 html, body {
   height: 100%;
+  max-width: 100%;
 }
 
 body {
   background: var(--white);
   color: var(--black);
   font-family: "JetBrains Mono", monospace;
-  overflow-y: scroll;
   overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
+}
+
+/* apapun yang lebih lebar dari layar dipaksa muat, biar body gak pernah geser ke samping */
+img, video, table, iframe {
+  max-width: 100%;
 }
 
 body::before {
@@ -61,7 +67,8 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 40;
   background: #fff;
 }
@@ -456,10 +463,12 @@ button {
 ========================= */
 
 .chat-wrap {
-  height: calc(100vh - var(--nav-h));
+  min-height: calc(100vh - var(--nav-h));
   display: flex;
   flex-direction: column;
   position: relative;
+  /* kasih ruang di bawah biar konten terakhir gak ketutup input-bar yang fixed */
+  padding-bottom: calc(var(--input-h) + 24px);
 }
 
 .welcome {
@@ -472,6 +481,7 @@ button {
   position: relative;
   padding: 20px;
   overflow: hidden;
+  min-height: calc(100vh - var(--nav-h) - var(--input-h));
 }
 
 .welcome-grid {
@@ -584,11 +594,12 @@ button {
 
 .messages {
   flex: 1;
-  overflow-y: auto;
+  overflow: visible;
   padding: 24px 8% 12px;
   display: none;
   flex-direction: column;
   gap: 18px;
+  max-width: 100%;
 }
 
 .messages.active {
@@ -599,6 +610,7 @@ button {
   display: flex;
   flex-direction: column;
   max-width: 78%;
+  min-width: 0;
   animation: msgIn .35s cubic-bezier(.2,.8,.2,1) both;
 }
 
@@ -634,6 +646,9 @@ button {
   line-height: 1.6;
   position: relative;
   word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 .msg-row.user .msg-bubble {
@@ -702,6 +717,7 @@ button {
   margin: 10px 0;
   background: #000;
   overflow: hidden;
+  max-width: 100%;
 }
 
 .code-block-head {
@@ -743,11 +759,15 @@ button {
   margin: 0;
   padding: 12px 14px;
   overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   font-size: 12px;
+  max-width: 100%;
 }
 
 .code-block code {
   font-family: "JetBrains Mono", monospace;
+  white-space: pre;
 }
 
 .code-preview-frame {
@@ -772,6 +792,13 @@ button {
   gap: 8px;
   padding: 0 8% 0;
   flex-wrap: wrap;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--input-h);
+  z-index: 54;
+  background: #fff;
+  max-width: 100%;
 }
 
 .attach-preview:not(:empty) {
@@ -810,8 +837,13 @@ button {
   align-items: flex-end;
   gap: 10px;
   padding: 14px 8%;
-  position: relative;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 55;
   background: #fff;
+  max-width: 100%;
 }
 
 .model-select-wrap {

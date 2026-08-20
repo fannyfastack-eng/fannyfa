@@ -5,13 +5,16 @@ const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const uploadDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, 'uploads');
 require("dotenv").config();
 const app = express();
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname)));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Ubah dari express.json() biasa menjadi:
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 const chatRoutes = require("./routes/chat.routes");
 const sessionRoutes = require("./routes/session.routes");

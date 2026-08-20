@@ -23,7 +23,8 @@ body {
   background: var(--white);
   color: var(--black);
   font-family: "JetBrains Mono", monospace;
-  overflow: hidden;
+  overflow-y: scroll;
+  overflow-x: hidden;
   position: relative;
 }
 

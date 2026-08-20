@@ -136,6 +136,25 @@
 
       <div class="msg" id="settingsMsg"></div>
 
+      <div class="settings-label" style="margin-top:20px;">// SYSTEM PROMPT</div>
+
+      <div class="provider-field">
+        <label><i class="bi bi-terminal"></i> Instruksi Default AI</label>
+        <textarea
+          id="systemPromptInput"
+          class="key-input"
+          rows="4"
+          style="width:100%; resize:vertical; font-family:'JetBrains Mono',monospace;"
+          placeholder="Contoh: Kamu asisten coding, jawab singkat pakai gaya santai bahasa Indonesia..."
+        ></textarea>
+      </div>
+
+      <button class="primary-btn fx-btn" id="btnSaveSystemPrompt">
+        <i class="bi bi-check2"></i> Simpan System Prompt
+      </button>
+
+      <div class="msg" id="systemPromptMsg"></div>
+
     </div>
 
   </div>

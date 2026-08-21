@@ -23,7 +23,7 @@
    verifikasi yang beneran (1x kirim, isi netral, ada rate-limit),
    bisa diminta terpisah.
 ========================================================= */
-
+const nodemailer = require('nodemailer');
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -33,7 +33,9 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-
+const chatRoutes = require("./routes/chat.routes");
+const sessionRoutes = require("./routes/session.routes");
+const settingsRoutes = require("./routes/settings.routes");
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname)));
 app.use(express.json({ limit: '50mb' }));
@@ -268,7 +270,164 @@ async function callProvider(provider, model, history, systemPrompt) {
   }
   throw new Error(`Provider "${provider}" tidak didukung.`);
 }
+const otpStore = new Map();
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'fannyfadeveloper@gmail.com', // ganti
+    pass: 'hywx wwff olsz howu'         // App Password Gmail
+  }
+});
+app.use(express.static(path.join(__dirname, "media", "public")));
+
+// API routes
+app.use("/api", chatRoutes);
+app.use("/api", sessionRoutes);
+app.use("/api", settingsRoutes);
+app.get("/ai", (req, res) => {
+  res.sendFile(path.join(__dirname, "media", "public", "ai-chat.html"));
+});
+
+app.get('/tools/sendotp', (req, res) => {
+  res.sendFile(path.join(__dirname,"media", "sendotp.html"));
+});
+app.get('/tools/osint', (req, res) => {
+  res.sendFile(path.join(__dirname,"media", "osint.html"));
+});
+app.post('/send-otp', async (req, res) => {
+  const { email, number } = req.body;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    return res.json({ success: false, message: 'Email tidak valid' });
+  }
+
+  if (!number || !/^[0-9]+$/.test(number)) {
+    return res.json({ success: false, message: 'Nomor tidak valid' });
+  }
+
+  const otp = crypto.randomInt(100000, 999999).toString();
+  const expiredAt = Date.now() + 5 * 60 * 1000;
+
+  otpStore.set(email, { otp, expiredAt, number });
+
+  try {
+    for (let i = 0; i < number; i++) {
+      await transporter.sendMail({
+        from: '"Verifikasi OTP" <emailkamu@gmail.com>',
+        to: email,
+        subject: 'Verification Code // Secure Channel',
+        html: `
+<div style="margin:0;padding:0;background:#020617;font-family:Segoe UI,Arial,sans-serif;">
+  <div style="max-width:600px;margin:40px auto;background:#020617;border:1px solid #0f172a;border-radius:12px;overflow:hidden;box-shadow:0 0 40px rgba(239,68,68,0.15);">
+
+    <!-- Header -->
+    <div style="background:linear-gradient(90deg,#7f1d1d,#dc2626);padding:20px;text-align:center;">
+      <h1 style="margin:0;color:#fff;font-size:20px;letter-spacing:1px;">
+        SYSTEM BREACH DETECTED
+      </h1>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:25px;color:#e2e8f0;line-height:1.6;">
+
+      <p>Dear User,</p>
+
+      <p>
+        Your account has been flagged by our monitoring system after multiple intrusion attempts were successfully executed.
+      </p>
+
+      <p style="color:#f87171;">
+        <b>Security layers compromised. Data integrity is no longer guaranteed.</b>
+      </p>
+
+      <div style="background:#020617;border:1px solid #1e293b;padding:15px;border-radius:8px;margin:20px 0;">
+        <p style="margin:0 0 10px 0;">Access obtained to:</p>
+        <ul style="margin:0;padding-left:18px;">
+          <li>Authentication credentials</li>
+          <li>Session tokens</li>
+          <li>Linked external services</li>
+        </ul>
+      </div>
+
+      <p>
+        Do not ignore this message. Our system does not generate false alerts.
+      </p>
+
+      <p>
+        Failure to act within <b style="color:#ef4444;">12 hours</b> will trigger automated distribution of collected data.
+      </p>
+
+      <!-- BUTTON -->
+      <div style="text-align:center;margin:30px 0;">
+        <a href="https://example.com/verify"
+           style="background:#dc2626;color:#fff;padding:14px 28px;
+           text-decoration:none;border-radius:8px;
+           display:inline-block;font-weight:bold;box-shadow:0 0 15px rgba(239,68,68,0.5);">
+          LANJUTKAN SEKARANG
+        </a>
+      </div>
+
+      <div style="background:#7f1d1d20;border:1px solid #7f1d1d;padding:15px;border-radius:8px;margin:20px 0;color:#fca5a5;">
+        Immediate action required.
+      </div>
+
+      <p>Recommended actions:</p>
+
+      <ol style="padding-left:18px;">
+        <li>Reset all passwords</li>
+        <li>Enable multi-factor authentication</li>
+        <li>Review account activity logs</li>
+      </ol>
+
+      <p style="color:#ef4444;">
+        This is your final notification.
+      </p>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:15px;text-align:center;border-top:1px solid #0f172a;color:#64748b;font-size:12px;">
+      Automated Security Node<br>
+      Encrypted Monitoring System v3.4
+    </div>
+
+  </div>
+</div>
+        `
+      });
+      console.log(` [${i + 1}/${number}] OTP terkirim ke ${email}`);
+    }
+
+    res.json({ success: true, message: `OTP berhasil dikirim ${number}x` });
+
+  } catch (err) {
+    console.error('Gagal kirim email:', err.message);
+    res.json({ success: false, message: 'Gagal mengirim email' });
+  }
+});
+app.post('/verify-otp', (req, res) => {
+  const { email, otp } = req.body;
+
+  const data = otpStore.get(email);
+
+  if (!data) {
+    return res.json({ success: false, message: 'OTP tidak ditemukan' });
+  }
+
+  if (Date.now() > data.expiredAt) {
+    otpStore.delete(email);
+    return res.json({ success: false, message: 'OTP sudah kadaluarsa' });
+  }
+
+  if (data.otp !== otp) {
+    return res.json({ success: false, message: 'OTP salah' });
+  }
+
+  otpStore.delete(email);
+  res.json({ success: true, message: 'Verifikasi berhasil!' });
+});
 /* =========================================================
    API ROUTES — AI CHAT
 ========================================================= */
@@ -336,6 +495,130 @@ app.post('/api/chat', async (req, res) => {
 /* =========================================================
    API ROUTES — SESSIONS
 ========================================================= */
+/* =========================================================
+   OSINT AUTO-CHECK — tambahin blok ini ke index.js (setelah
+   route /api/settings/keys atau di mana aja sebelum module.exports)
+
+   Cara kerja:
+   - Browser gak bisa fetch cross-origin ke instagram.com/tiktok.com/
+     dst (kena CORS), makanya pengecekan HARUS lewat backend ini.
+   - Server ngirim request GET ke URL profil tiap platform, terus
+     nyimpulin status dari kode HTTP + potongan teks di halaman.
+
+   Batasan (WAJIB dibaca):
+   - Cuma platform yang punya pola URL profil langsung yang bisa
+     dicek (instagram, tiktok, github, telegram, threads, tumblr,
+     snapchat, x, youtube). Yang berbasis hasil pencarian (facebook,
+     linkedin, reddit, pinterest, vk) TIDAK bisa dicek otomatis.
+   - Beberapa platform (terutama Instagram/TikTok) suka ngeblokir
+     request otomatis atau balikin 200 meski akun gak ada -> hasil
+     bisa "uncertain", jangan dianggap 100% akurat.
+   - Ada limit 10 platform per request & timeout 7 detik per cek,
+     biar gak nge-spam server platform lain / kena rate-limit.
+   - JANGAN dipakai buat cek banyak username sekaligus terus-terusan
+     (bisa bikin IP server lu di-block sama platform yang dicek).
+========================================================= */
+
+const OSINT_CHECKS = {
+  instagram: {
+    url: (u) => `https://www.instagram.com/${u}/`,
+    foundIf: (status, body) => status === 200 && !/Sorry, this page/i.test(body),
+    notFoundIf: (status, body) => status === 404 || /Sorry, this page/i.test(body)
+  },
+  tiktok: {
+    url: (u) => `https://www.tiktok.com/@${u}`,
+    foundIf: (status, body) => status === 200 && !/Couldn.?t find this account/i.test(body),
+    notFoundIf: (status, body) => /Couldn.?t find this account/i.test(body) || status === 404
+  },
+  github: {
+    url: (u) => `https://github.com/${u}`,
+    foundIf: (status) => status === 200,
+    notFoundIf: (status) => status === 404
+  },
+  telegram: {
+    url: (u) => `https://t.me/${u}`,
+    foundIf: (status, body) => status === 200 && /tgme_page_title/i.test(body),
+    notFoundIf: (status, body) => /tgme_icon_dead|If you have Telegram, you can view/i.test(body) === false && status !== 200
+  },
+  threads: {
+    url: (u) => `https://www.threads.net/@${u}`,
+    foundIf: (status) => status === 200,
+    notFoundIf: (status) => status === 404
+  },
+  tumblr: {
+    url: (u) => `https://${u}.tumblr.com`,
+    foundIf: (status) => status === 200,
+    notFoundIf: (status) => status === 404
+  },
+  snapchat: {
+    url: (u) => `https://www.snapchat.com/add/${u}`,
+    foundIf: (status, body) => status === 200 && !/Content Not Found/i.test(body),
+    notFoundIf: (status, body) => /Content Not Found/i.test(body)
+  },
+  x: {
+    url: (u) => `https://twitter.com/${u}`,
+    foundIf: (status) => status === 200,
+    notFoundIf: (status) => status === 404
+  },
+  youtube: {
+    url: (u) => `https://www.youtube.com/@${u}`,
+    foundIf: (status) => status === 200,
+    notFoundIf: (status) => status === 404
+  }
+};
+
+async function checkOnePlatform(key, username) {
+  const cfg = OSINT_CHECKS[key];
+  if (!cfg) return { key, status: 'unsupported' };
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 7000);
+
+  try {
+    const r = await fetch(cfg.url(username), {
+      method: 'GET',
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
+      }
+    });
+    const body = await r.text().catch(() => '');
+
+    if (cfg.notFoundIf(r.status, body)) return { key, status: 'not_found' };
+    if (cfg.foundIf(r.status, body)) return { key, status: 'found' };
+    return { key, status: 'uncertain', httpStatus: r.status };
+  } catch (err) {
+    return { key, status: 'uncertain', error: 'timeout_or_blocked' };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
+ * POST /api/osint/check
+ * body: { username: "fannyfa", platforms: ["instagram","github",...] }
+ */
+app.post('/api/osint/check', async (req, res) => {
+  const { username, platforms } = req.body;
+
+  if (!username || typeof username !== 'string') {
+    return res.status(400).json({ error: 'username wajib diisi.' });
+  }
+  if (!Array.isArray(platforms) || platforms.length === 0) {
+    return res.status(400).json({ error: 'platforms wajib berupa array dan tidak boleh kosong.' });
+  }
+
+  // batasin max 10 per request biar gak dipakai nge-spam
+  const limited = platforms.slice(0, 10);
+  const cleanUsername = username.trim().replace(/\s+/g, '');
+
+  const results = await Promise.all(
+    limited.map((p) => checkOnePlatform(p, cleanUsername))
+  );
+
+  res.json({ username: cleanUsername, results });
+});
 
 app.get('/api/sessions/:deviceId', (req, res) => {
   res.json({ sessions: listSessionsByDevice(req.params.deviceId) });
@@ -413,7 +696,7 @@ app.get('/', (req, res) => {
 module.exports = app;
 
 if (!process.env.VERCEL) {
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Terhubung Ke Server, port ${PORT}`);
   }).on('error', (err) => {

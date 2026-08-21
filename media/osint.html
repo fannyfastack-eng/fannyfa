@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSINT Finder — FannyFa</title>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+  rel="stylesheet"
+>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+>
+
+<style>
+  :root {
+    --black: #000;
+    --white: #fff;
+    --gray: #777;
+    --light: #e9e9e9;
+    --border: #d5d5d5;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: "JetBrains Mono", monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: .035;
+    background: repeating-linear-gradient(0deg, #000 0px, #000 1px, transparent 1px, transparent 4px);
+  }
+
+  img, table, iframe { max-width: 100%; }
+
+  /* =========================
+     HEADER
+  ========================= */
+
+  header {
+    height: 74px;
+    border-bottom: 1px solid var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6%;
+    position: sticky;
+    top: 0;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(10px);
+    z-index: 20;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -.5px;
+  }
+
+  .logo-box {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--black);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    position: relative;
+  }
+
+  .logo-box::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    animation: orbit 3s linear infinite;
+  }
+
+  @keyframes orbit { to { transform: rotate(360deg); } }
+
+  .back-link {
+    font-size: 10px;
+    color: var(--gray);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: .2s ease;
+  }
+
+  .back-link:hover {
+    border-color: var(--black);
+    color: var(--black);
+  }
+
+  /* =========================
+     HERO / SEARCH
+  ========================= */
+
+  .hero {
+    padding: 60px 6% 30px;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    opacity: .4;
+    background-image:
+      linear-gradient(#00000012 1px, transparent 1px),
+      linear-gradient(90deg, #00000012 1px, transparent 1px);
+    background-size: 38px 38px;
+    animation: gridMove 10s linear infinite;
+  }
+
+  @keyframes gridMove {
+    from { background-position: 0 0; }
+    to { background-position: 38px 38px; }
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--black);
+    padding: 7px 14px;
+    font-size: 10px;
+    margin-bottom: 22px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    background: #000;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .1; } }
+
+  .hero-title {
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 800;
+    letter-spacing: -2px;
+    margin-bottom: 10px;
+  }
+
+  .hero-sub {
+    font-size: 11px;
+    color: var(--gray);
+    max-width: 480px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+  }
+
+  .search-box {
+    display: flex;
+    gap: 10px;
+    border: 1px solid var(--black);
+    padding: 6px;
+    box-shadow: 8px 8px 0 #eee;
+    background: #fff;
+  }
+
+  .search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    padding: 12px 14px;
+    background: transparent;
+  }
+
+  .search-box button {
+    background: var(--black);
+    color: #fff;
+    border: none;
+    padding: 0 20px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background .2s ease, transform .1s ease;
+  }
+
+  .search-box button:hover { background: #222; }
+  .search-box button:active { transform: scale(.96); }
+
+  .quick-hint {
+    margin-top: 12px;
+    font-size: 9px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* =========================
+     CATEGORY FILTER + LIVE FILTER
+  ========================= */
+
+  .controls {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 6% 20px;
+  }
+
+  .cat-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .cat-tab {
+    border: 1px solid var(--border);
+    background: #fff;
+    padding: 8px 14px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: .2s ease;
+  }
+
+  .cat-tab:hover { border-color: var(--black); }
+
+  .cat-tab.active {
+    background: var(--black);
+    color: #fff;
+    border-color: var(--black);
+  }
+
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    padding: 9px 12px;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .filter-row i { color: var(--gray); font-size: 12px; }
+
+  .filter-row input {
+    border: none;
+    outline: none;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    flex: 1;
+    background: transparent;
+  }
+
+  /* =========================
+     RESULTS GRID
+  ========================= */
+
+  .results-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 10px 6% 80px;
+  }
+
+  .results-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .results-count {
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .open-all-btn {
+    border: 1px solid var(--black);
+    background: #fff;
+    padding: 8px 14px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: .2s ease;
+  }
+
+  .open-all-btn:hover {
+    background: var(--black);
+    color: #fff;
+  }
+
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 12px;
+  }
+
+  .platform-card {
+    border: 1px solid var(--black);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--black);
+    background: #fff;
+    position: relative;
+    transition: transform .15s ease, box-shadow .15s ease;
+    animation: cardIn .3s ease both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .platform-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 5px 5px 0 #eee;
+  }
+
+  .platform-card .p-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .platform-card .p-icon {
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--black);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .platform-card .p-name {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .platform-card .p-cat {
+    font-size: 8px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .platform-card .p-desc {
+    font-size: 10px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+
+  .platform-card .p-go {
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: auto;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .status-badge {
+    font-size: 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    width: fit-content;
+  }
+
+  .status-badge.loading {
+    color: var(--gray);
+  }
+
+  .status-badge.loading i {
+    animation: spinCheck .8s linear infinite;
+  }
+
+  @keyframes spinCheck { to { transform: rotate(360deg); } }
+
+  .status-badge.found {
+    border-color: #000;
+    background: #000;
+    color: #fff;
+  }
+
+  .status-badge.not_found {
+    color: var(--gray);
+  }
+
+  .status-badge.uncertain {
+    color: var(--gray);
+    font-style: italic;
+  }
+
+  .status-badge.manual {
+    color: var(--border);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray);
+    font-size: 11px;
+  }
+
+  .empty-state i {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  /* =========================
+     DORK SECTION
+  ========================= */
+
+  .dork-section {
+    border-top: 1px solid var(--black);
+    padding: 50px 6% 80px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    color: var(--gray);
+    margin-bottom: 18px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .dork-list {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dork-item {
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--black);
+    transition: border-color .2s ease;
+  }
+
+  .dork-item:hover { border-color: var(--black); }
+
+  .dork-item .d-text {
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+
+  .dork-item .d-text b { font-weight: 700; }
+
+  .dork-item i {
+    flex-shrink: 0;
+    color: var(--gray);
+    font-size: 12px;
+  }
+
+  /* =========================
+     FOOTER NOTE
+  ========================= */
+
+  .disclaimer {
+    border-top: 1px solid #000;
+    background: #000;
+    color: #999;
+    font-size: 9px;
+    padding: 18px 6%;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .disclaimer b { color: #fff; }
+
+  /* =========================
+     RESPONSIVE
+  ========================= */
+
+  @media (max-width: 700px) {
+    header { padding: 0 20px; }
+    .hero { padding: 40px 20px 20px; }
+    .controls, .results-section, .dork-section { padding-left: 5%; padding-right: 5%; }
+    .search-box { flex-direction: column; }
+    .search-box button { padding: 12px; justify-content: center; }
+    .platform-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">FF</div>
+    OSINT Finder
+  </div>
+  <a href="/tools.html" class="back-link">
+    <i class="bi bi-arrow-left"></i> Tools
+  </a>
+</header>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      PUBLIC SEARCH ONLY — NO SCRAPING
+    </div>
+
+    <h1 class="hero-title">OSINT Finder</h1>
+    <p class="hero-sub">
+      Masukin username / nama / email, langsung dikasih link pencarian resmi
+      ke tiap platform (IG, FB, X, LinkedIn, Telegram, YouTube, dll) — semua
+      buka halaman publik masing-masing platform, bukan bypass atau data pribadi.
+    </p>
+
+    <div class="search-box">
+      <input
+        type="text"
+        id="queryInput"
+        placeholder="contoh: fannyfa / nama lengkap / email..."
+        autocomplete="off"
+      >
+      <button id="searchBtn">
+        <i class="bi bi-search"></i> Cari
+      </button>
+    </div>
+
+    <div class="quick-hint">
+      <i class="bi bi-info-circle"></i>
+      Tekan Enter untuk cari cepat
+    </div>
+  </div>
+</section>
+
+<div class="controls">
+  <div class="cat-tabs" id="catTabs"></div>
+  <div class="filter-row">
+    <i class="bi bi-funnel"></i>
+    <input type="text" id="platformFilter" placeholder="Filter nama platform...">
+  </div>
+</div>
+
+<section class="results-section">
+  <div class="results-head">
+    <span class="results-count" id="resultsCount">0 platform</span>
+    <button class="open-all-btn" id="openAllBtn">
+      <i class="bi bi-box-arrow-up-right"></i> Buka Semua Tab
+    </button>
+  </div>
+
+  <div class="platform-grid" id="platformGrid"></div>
+</section>
+
+<section class="dork-section">
+  <div class="section-label">// GOOGLE DORK CEPAT — pencarian lebih spesifik lewat Google</div>
+  <div class="dork-list" id="dorkList"></div>
+</section>
+
+<div class="disclaimer">
+  <b>Catatan legal:</b> tools ini cuma nyusun link ke fitur pencarian resmi tiap platform
+  (search publik / URL profil publik). Nggak ada scraping, bypass login, atau akses data privat.
+  Gunakan buat riset yang sah — hormatin privasi orang lain dan ToS tiap platform.
+</div>
+
+<script>
+(function () {
+
+  const PLATFORMS = [
+    { name: "Instagram", cat: "social", icon: "bi-instagram", checkKey: "instagram", desc: "Cek profil langsung berdasarkan username.", url: (q) => `https://www.instagram.com/${encodeURIComponent(q)}/` },
+    { name: "Facebook", cat: "social", icon: "bi-facebook", checkKey: null, desc: "Pencarian publik nama/username di Facebook.", url: (q) => `https://www.facebook.com/search/top/?q=${encodeURIComponent(q)}` },
+    { name: "X (Twitter)", cat: "social", icon: "bi-twitter-x", checkKey: "x", desc: "Cari akun/tweet terkait kata kunci.", url: (q) => `https://twitter.com/${encodeURIComponent(q)}` },
+    { name: "TikTok", cat: "social", icon: "bi-tiktok", checkKey: "tiktok", desc: "Cek profil langsung berdasarkan username.", url: (q) => `https://www.tiktok.com/@${encodeURIComponent(q)}` },
+    { name: "Telegram", cat: "social", icon: "bi-telegram", checkKey: "telegram", desc: "Buka username/channel Telegram publik.", url: (q) => `https://t.me/${encodeURIComponent(q)}` },
+    { name: "LinkedIn", cat: "professional", icon: "bi-linkedin", checkKey: null, desc: "Pencarian nama di LinkedIn (perlu login platform).", url: (q) => `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(q)}` },
+    { name: "YouTube", cat: "video", icon: "bi-youtube", checkKey: "youtube", desc: "Cari channel/video terkait kata kunci.", url: (q) => `https://www.youtube.com/@${encodeURIComponent(q)}` },
+    { name: "Pinterest", cat: "social", icon: "bi-pinterest", checkKey: null, desc: "Cari pin/profil di Pinterest.", url: (q) => `https://www.pinterest.com/search/users/?q=${encodeURIComponent(q)}` },
+    { name: "Reddit", cat: "social", icon: "bi-reddit", checkKey: null, desc: "Cari user/post terkait kata kunci.", url: (q) => `https://www.reddit.com/search/?q=${encodeURIComponent(q)}` },
+    { name: "Threads", cat: "social", icon: "bi-at", checkKey: "threads", desc: "Cek profil langsung berdasarkan username.", url: (q) => `https://www.threads.net/@${encodeURIComponent(q)}` },
+    { name: "GitHub", cat: "professional", icon: "bi-github", checkKey: "github", desc: "Cek profil/repo developer berdasarkan username.", url: (q) => `https://github.com/${encodeURIComponent(q)}` },
+    { name: "Tumblr", cat: "social", icon: "bi-tumblr", checkKey: "tumblr", desc: "Cek blog Tumblr berdasarkan username.", url: (q) => `https://${encodeURIComponent(q)}.tumblr.com` },
+    { name: "Snapchat", cat: "social", icon: "bi-snapchat", checkKey: "snapchat", desc: "Cek profil publik Snapchat.", url: (q) => `https://www.snapchat.com/add/${encodeURIComponent(q)}` },
+    { name: "VK", cat: "social", icon: "bi-globe2", checkKey: null, desc: "Pencarian publik di VKontakte.", url: (q) => `https://vk.com/search?c%5Bq%5D=${encodeURIComponent(q)}` },
+    { name: "Google", cat: "engine", icon: "bi-google", checkKey: null, desc: "Pencarian umum di Google.", url: (q) => `https://www.google.com/search?q=${encodeURIComponent(q)}` },
+    { name: "Bing", cat: "engine", icon: "bi-microsoft", checkKey: null, desc: "Pencarian umum di Bing.", url: (q) => `https://www.bing.com/search?q=${encodeURIComponent(q)}` },
+    { name: "DuckDuckGo", cat: "engine", icon: "bi-shield-check", checkKey: null, desc: "Pencarian tanpa tracking.", url: (q) => `https://duckduckgo.com/?q=${encodeURIComponent(q)}` },
+    { name: "Yandex", cat: "engine", icon: "bi-globe", checkKey: null, desc: "Pencarian gambar & web via Yandex.", url: (q) => `https://yandex.com/search/?text=${encodeURIComponent(q)}` }
+  ];
+
+  const CATEGORIES = [
+    { id: "all", label: "Semua", icon: "bi-grid" },
+    { id: "social", label: "Sosial Media", icon: "bi-people" },
+    { id: "professional", label: "Profesional", icon: "bi-briefcase" },
+    { id: "video", label: "Video", icon: "bi-play-circle" },
+    { id: "engine", label: "Search Engine", icon: "bi-search" }
+  ];
+
+  const DORKS = [
+    { label: "Nama di LinkedIn", tpl: (q) => `site:linkedin.com/in "${q}"` },
+    { label: "Nama di Facebook", tpl: (q) => `site:facebook.com "${q}"` },
+    { label: "Username di semua platform sosmed", tpl: (q) => `"${q}" (site:instagram.com OR site:twitter.com OR site:tiktok.com)` },
+    { label: "Dokumen publik (PDF) terkait nama", tpl: (q) => `"${q}" filetype:pdf` },
+    { label: "Nomor telepon publik terindeks", tpl: (q) => `"${q}" intext:"+62"` },
+    { label: "Email publik terindeks", tpl: (q) => `"${q}" "@gmail.com" OR "@yahoo.com"` }
+  ];
+
+  const el = {
+    queryInput: document.getElementById("queryInput"),
+    searchBtn: document.getElementById("searchBtn"),
+    catTabs: document.getElementById("catTabs"),
+    platformFilter: document.getElementById("platformFilter"),
+    platformGrid: document.getElementById("platformGrid"),
+    resultsCount: document.getElementById("resultsCount"),
+    openAllBtn: document.getElementById("openAllBtn"),
+    dorkList: document.getElementById("dorkList")
+  };
+
+  let activeCat = "all";
+  let currentQuery = "";
+
+  function renderCatTabs() {
+    el.catTabs.innerHTML = "";
+    CATEGORIES.forEach((c) => {
+      const btn = document.createElement("button");
+      btn.className = "cat-tab" + (c.id === activeCat ? " active" : "");
+      btn.innerHTML = `<i class="bi ${c.icon}"></i> ${c.label}`;
+      btn.addEventListener("click", () => {
+        activeCat = c.id;
+        renderCatTabs();
+        renderPlatforms();
+      });
+      el.catTabs.appendChild(btn);
+    });
+  }
+
+  function getFilteredPlatforms() {
+    const filterText = el.platformFilter.value.trim().toLowerCase();
+    return PLATFORMS.filter((p) => {
+      const matchCat = activeCat === "all" || p.cat === activeCat;
+      const matchFilter = !filterText || p.name.toLowerCase().includes(filterText);
+      return matchCat && matchFilter;
+    });
+  }
+
+  function renderPlatforms() {
+    const list = getFilteredPlatforms();
+    el.resultsCount.textContent = `${list.length} platform`;
+
+    if (!currentQuery) {
+      el.platformGrid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <i class="bi bi-search"></i>
+          Ketik username / nama / email di atas, terus tekan Cari.
+        </div>`;
+      renderDorks();
+      return;
+    }
+
+    if (list.length === 0) {
+      el.platformGrid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <i class="bi bi-emoji-frown"></i>
+          Gak ada platform yang cocok sama filter ini.
+        </div>`;
+      return;
+    }
+
+    el.platformGrid.innerHTML = "";
+    list.forEach((p, i) => {
+      const card = document.createElement("a");
+      card.href = p.url(currentQuery);
+      card.target = "_blank";
+      card.rel = "noopener noreferrer";
+      card.className = "platform-card";
+      card.dataset.checkKey = p.checkKey || "";
+      card.style.animationDelay = (i * 0.02) + "s";
+
+      const badgeHtml = p.checkKey
+        ? `<span class="status-badge loading" data-badge><i class="bi bi-arrow-repeat"></i> Mengecek...</span>`
+        : `<span class="status-badge manual"><i class="bi bi-hand-index-thumb"></i> Manual</span>`;
+
+      card.innerHTML = `
+        <div class="p-top">
+          <div class="p-icon"><i class="bi ${p.icon}"></i></div>
+          <div>
+            <div class="p-name">${p.name}</div>
+            <div class="p-cat">${p.cat}</div>
+          </div>
+        </div>
+        <div class="p-desc">${p.desc}</div>
+        ${badgeHtml}
+        <div class="p-go"><i class="bi bi-box-arrow-up-right"></i> Buka halaman</div>
+      `;
+      el.platformGrid.appendChild(card);
+    });
+
+    runAutoCheck(list, currentQuery);
+  }
+
+  const STATUS_LABEL = {
+    found: { icon: "bi-check-circle-fill", text: "Ditemukan" },
+    not_found: { icon: "bi-x-circle", text: "Gak ada" },
+    uncertain: { icon: "bi-question-circle", text: "Gak yakin" },
+    unsupported: { icon: "bi-dash-circle", text: "Manual" }
+  };
+
+  async function runAutoCheck(list, query) {
+    const checkable = list.filter((p) => p.checkKey);
+    if (checkable.length === 0) return;
+
+    try {
+      const res = await fetch("/api/osint/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: query,
+          platforms: checkable.map((p) => p.checkKey)
+        })
+      });
+
+      if (!res.ok) throw new Error("backend error");
+      const data = await res.json();
+
+      // update tiap card sesuai checkKey
+      data.results.forEach((r) => {
+        const cards = el.platformGrid.querySelectorAll("a.platform-card");
+        cards.forEach((card) => {
+          if (card.dataset.checkKey === r.key) {
+            const badge = card.querySelector("[data-badge]");
+            const info = STATUS_LABEL[r.status] || STATUS_LABEL.uncertain;
+            badge.className = "status-badge " + r.status;
+            badge.removeAttribute("data-badge");
+            badge.innerHTML = `<i class="bi ${info.icon}"></i> ${info.text}`;
+          }
+        });
+      });
+
+    } catch (err) {
+      // backend gak nyala / gagal -> fallback diam-diam ke mode manual
+      const loadingBadges = el.platformGrid.querySelectorAll(".status-badge.loading");
+      loadingBadges.forEach((badge) => {
+        badge.className = "status-badge manual";
+        badge.innerHTML = `<i class="bi bi-hand-index-thumb"></i> Manual`;
+      });
+    }
+  }
+
+  function renderDorks() {
+    if (!currentQuery) {
+      el.dorkList.innerHTML = `<div class="empty-state">Isi pencarian dulu buat lihat dork yang relevan.</div>`;
+      return;
+    }
+    el.dorkList.innerHTML = "";
+    DORKS.forEach((d) => {
+      const query = d.tpl(currentQuery);
+      const item = document.createElement("a");
+      item.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+      item.target = "_blank";
+      item.rel = "noopener noreferrer";
+      item.className = "dork-item";
+      item.innerHTML = `
+        <span class="d-text">${d.label} — <b>${query}</b></span>
+        <i class="bi bi-box-arrow-up-right"></i>
+      `;
+      el.dorkList.appendChild(item);
+    });
+  }
+
+  function runSearch() {
+    const q = el.queryInput.value.trim();
+    if (!q) {
+      el.queryInput.focus();
+      return;
+    }
+    currentQuery = q;
+    renderPlatforms();
+    renderDorks();
+    document.querySelector(".controls").scrollIntoView({ behavior: "smooth" });
+  }
+
+  el.searchBtn.addEventListener("click", runSearch);
+  el.queryInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") runSearch();
+  });
+  el.platformFilter.addEventListener("input", renderPlatforms);
+
+  el.openAllBtn.addEventListener("click", () => {
+    if (!currentQuery) {
+      el.queryInput.focus();
+      return;
+    }
+    const list = getFilteredPlatforms();
+    if (list.length > 8 && !confirm(`Ini bakal buka ${list.length} tab sekaligus. Lanjut?`)) return;
+    list.forEach((p) => window.open(p.url(currentQuery), "_blank", "noopener,noreferrer"));
+  });
+
+  renderCatTabs();
+  renderPlatforms();
+
+})();
+</script>
+
+</body>
+</html>

@@ -9,6 +9,7 @@
   href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Baloo+2:wght@500;600;700;800&display=swap"
   rel="stylesheet"
 >
+  <link rel="icon" type="image/png" href="https://files.catbox.moe/f2phxp.webp">
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
@@ -1104,7 +1105,7 @@
   function getTargetTime() {
     const now = new Date();
     const year = now.getFullYear();
-    const targetDate = new Date(year, 7, 28, 0, 0, 0, 0); // Agustus = bulan ke-7 (0-indexed)
+    const targetDate = new Date(year, 7, 29, 0, 0, 0, 0); // Agustus = bulan ke-7 (0-indexed)
 
     // Kalau sudah lewat 29 Agustus tahun ini, target tahun depan
     if (now > targetDate) {
@@ -1168,7 +1169,7 @@
   <h1 class="title-wrap" id="titleWrap"></h1>
 
   <p class="hero-sub">
-    Halo Afna! Hari ini spesial bangett hhh
+    Halo Afna! Hari ini spesial bangett
   </p>
 
   <div class="date-badge">
@@ -1200,10 +1201,8 @@
         <div class="candle" data-candle><div class="flame"></div><div class="smoke"></div></div>
         <div class="candle" data-candle><div class="flame"></div><div class="smoke"></div></div>
         <div class="candle" data-candle><div class="flame"></div><div class="smoke"></div></div>
-        <div class="candle" data-candle><div class="flame"></div><div class="smoke"></div></div>
-        <div class="candle" data-candle><div class="flame"></div><div class="smoke"></div></div>
-        <div class="candle" data-candle><div class="flame"></div><div class="smoke"></div></div>
-        <div class="candle" data-candle><div class="flame"></div><div class="smoke"></div></div>
+      
+        
       </div>
       <div class="cake-layer layer-top">
         <div class="drip"></div>
@@ -1234,7 +1233,7 @@
     <div class="letter-card" id="letterCard">
       <div class="letter-greet">Untuk Afna Ilma Ramadhani,</div>
       <div class="letter-body" id="letterBody"></div>
-      <div class="letter-sign">— dari temanmu yang ikut senang hari ini Fari wkwk</div>
+      <div class="letter-sign">— dari temanmu yang ikut senang hari ini Fari</div>
     </div>
   </div>
   <style>
@@ -1326,24 +1325,27 @@
   <div class="reasons-list">
     <div class="reason-item" data-reason>
       <div class="reason-num">01</div>
-      <div class="reason-text">Selalu bisa diajak cerita apa aja dan selalu ngerepotin kadang hhh.</div>
-    </div>
-    <div class="reason-item" data-reason>
-      <div class="reason-num">02</div>
-      <div class="reason-text">Ketawa kamu kebawa banget.</div>
-    </div>
-    <div class="reason-item" data-reason>
-      <div class="reason-num">03</div>
-      <div class="reason-text">Baik ke orang tanpa pamrih, gak pernah keliatan capek nolongin orang.</div>
-    </div>
-    <div class="reason-item" data-reason>
-      <div class="reason-num">04</div>
-      <div class="reason-text">Diem-diem strong, ngadepin masalah tanpa banyak ngeluh.</div>
-    </div>
-    <div class="reason-item" data-reason>
-      <div class="reason-num">05</div>
-      <div class="reason-text">Pokoknya beruntung banget punya temen kayak Afna.</div>
-    </div>
+      <div class="reason-text">Selalu bisa diajak cerita apa aja, dari hal penting sampai hal random yang kadang gak jelas wkwk.</div>
+    </div><div class="reason-item" data-reason>
+  <div class="reason-num">02</div>
+  <div class="reason-text">Orangnya enak diajak ngobrol, gak bikin ngerasa harus selalu mikir mau ngomong apa.</div>
+</div>
+
+<div class="reason-item" data-reason>
+  <div class="reason-num">03</div>
+  <div class="reason-text">Baik ke orang tanpa banyak mikir soal balasan, dan selalu mau bantu kalau ada yang butuh.</div>
+</div>
+
+<div class="reason-item" data-reason>
+  <div class="reason-num">04</div>
+  <div class="reason-text">Diem-diem kuat, walaupun punya masalah sendiri tapi masih bisa peduli sama orang lain.</div>
+</div>
+
+<div class="reason-item" data-reason>
+  <div class="reason-num">05</div>
+  <div class="reason-text">Pokoknya seneng dan beruntung bisa kenal sama orang kayak Afna. Semoga tetap jadi Afna yang sekarang, yaa.</div>
+</div>
+
   </div>
 </section>
 
@@ -1396,13 +1398,16 @@
   <span class="section-tag"><i class="bi bi-gift"></i> KEJUTAN KECIL</span>
   <h2 class="cake-title">Gosok Kartunya, Afna!</h2>
   <p class="cake-sub" style="max-width:420px; margin:10px auto 0;">
-    Pakai jari (atau mouse), gosok area abu-abu di bawah sampai pesannya kelihatan.
+    Gosok pakai jari sampai pesannya kelihatann yaa.
   </p>
 
   <div class="scratch-wrap" id="scratchWrap">
     <div class="scratch-reveal">
       <i class="bi bi-gift-fill"></i>
-      <p>Selamat ulang tahun! Semoga tahun ini banyak kejutan manis kayak yang baru kamu temuin ini.</p>
+      <p>Burung merpati terbang ke taman,
+Membawa ranting buat sarang tanaman
+Semoga ulang tahun ini membawa kebahagiaan,
+Hidupmu selalu penuh keberuntungan.</p>
     </div>
     <canvas id="scratchCanvas" class="scratch-canvas"></canvas>
   </div>
@@ -1863,8 +1868,8 @@
   let isPlaying = false;
 
   /* ================= GANTI URL INI DENGAN MUSIK AFNA ================= */
-  const MUSIC_URL = "https://files.catbox.moe/x0rhmj.mp3"; // GANTI INI!
-  const MUSIC_TITLE = "Lagu Spesial Buat Afna";
+  const MUSIC_URL = "https://files.catbox.moe/wbxxt8.mp3"; // GANTI INI!
+  const MUSIC_TITLE = "Lagu Spesial Untuk Afna";
 
   /* ================= UI TOGGLE ================= */
 
@@ -1971,10 +1976,9 @@
 ========================= -->
 <section class="wish-section center">
   <span class="section-tag"><i class="bi bi-magic"></i> SATU LAGI</span>
-  <h2 class="wish-title">Kirim Doa Buat Afna</h2>
+  <h2 class="wish-title">Kirim Doa Untuk Afna</h2>
   <p class="wish-sub">
-    Klik tombol di bawah buat nge-lepas confetti + doa singkat.
-    Boleh diklik berkali-kali kok, gak akan abis kok doanya 🎉
+    Klik terus sampe tangane koen pegel wkwk, moga bae doane koen kie bisa terwujud kabeh yaaa 🎉
   </p>
 
   <button class="wish-btn" id="wishBtn">
@@ -1985,7 +1989,7 @@
 </section>
 
 <footer>
-  <i class="bi bi-heart-fill"></i> Dibuat khusus buat Afna Ilma Ramadhani, 29 Agustus — semoga tahun ini penuh hal baik.
+  <i class="bi bi-heart-fill"></i> Dibuat khusus Untuk Afna Ilma Ramadhani, 29 Agustus 2026
 </footer>
 
 <script>
@@ -2091,7 +2095,9 @@
 
   /* ================= ENVELOPE / LETTER ================= */
 
-  const MESSAGE = "Selamat ulang tahunn afnaa, nyg tahun kie ora bisa ngein hadiah apa apa maning😁 kalem ngko tak mein mobil mobilan hhh🤣, setiap tahun rasane bisa beda beda yahh naa campur aduk kaya sega campur😭, ahh mbu ahh nyg ngetik apasihh gjelas menn, intinee 𝗦𝗘𝗟𝗔𝗠𝗔𝗧 𝗨𝗟𝗔𝗡𝗚 𝗧𝗔𝗛𝗨𝗡𝗡 𝗔𝗙𝗡𝗔𝗔";
+  const MESSAGE = `Selamat ulang tahun yaa Naa, semoga sehat terus, panjang umur, terus semoga apa sing koen pengin bisa tercapai. Hhh semoga koen seneng karo sing nyg gawe kie wkwk. Ora sepira sih, tapi sengaja gw gawe go koen, moga bae ora nggawe koen bingung malah wkwk. Intinee nikmatin bae pibesdayy koen kiee, aja kakehen mikir hhh 😭
+
+𝗦𝗘𝗟𝗔𝗠𝗔𝗧 𝗨𝗟𝗔𝗡𝗚 𝗧𝗔𝗛𝗨𝗡𝗡 𝗔𝗙𝗡𝗔𝗔 🎉`;
 
   const envelope = document.getElementById("envelope");
   const letterCard = document.getElementById("letterCard");
@@ -2342,15 +2348,15 @@
   /* ================= SPIN WHEEL ================= */
 
   const WHEEL_ITEMS = [
-    { label: "SEHAT", text: "Semogaa sehat selalu yaa ora gampang meriang trus ora bakal kesurupan maning." },
-    { label: "HOKI", text: "Rezeki trus trusan ngalir, awas ketiban koper isine duit." },
-    { label: "BAHAGIA", text: "Selalu tertawaa dan merasa senang, aja eman eman naa gembuyunee." },
-    { label: "SUKSES", text: "Semua rencana dan keinginan kamu terwujud satu satuu aminn." },
-    { label: "CANTIK", text: "Makin pede sama diri sendiri dan rambut baru kamuu eaaa." },
-    { label: "SANTUY", text: "Ora usah cepet cepet naa karo nyantai bae tapi aja terlalu santai juga hhh." },
-    { label: "DISAYANG", text: "Selalu dikelilingi orang-orang yang beneran sayang sama kamu contohnya kaya sekarr you bestfriend." },
-    { label: "AMIN", text: "Tak doakna kabeh doane koen diwujudna aminn." }
-  ];
+  { label: "SEHAT", text: "Semogaa sehat selalu yaa, ora gampang meriang trus ora bakal kesurupan maning." },
+  { label: "HOKI", text: "Rezeki trus trusan ngalir, semoga bae udan duit." },
+  { label: "BAHAGIA", text: "Selalu tertawaa dan merasa senang, aja eman eman naa gembuyunee." },
+  { label: "SUKSES", text: "Semua rencana dan keinginan kamu terwujud satu satuu, aminn." },
+  { label: "CANTIK", text: "Tambah pede karo diri sendiri trus rambut anyare koen 🤭." },
+  { label: "SANTUY", text: "Ora usah cepet cepet naa, nyantai bae tapi aja terlalu santai juga hhh." },
+  { label: "DISAYANG", text: "Selalu disayang sama orang orang disekitar koen." },
+  { label: "AMIN", text: "Tak doakna kabeh doane koen diwujudna, aminn." }
+];
 
   const wheelCanvas = document.getElementById("wheelCanvas");
   const wctx = wheelCanvas.getContext("2d");

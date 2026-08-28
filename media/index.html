@@ -1294,10 +1294,50 @@
     .balasan-bubble i { color: var(--pink-deep); flex-shrink: 0; }
 
   </style>
-  <div id="tampilkanBalasan" class="tampilkanBalasan" hidden>
-    <input type="text" placeholder="Masukan balasan">
-    <button id="submitBalasan">Kirim balasan</button>
-  </div>
+<div id="tampilkanBalasan" class="tampilkanBalasan" hidden>
+  <input id="pesanInput" type="text" placeholder="Masukan balasan">
+  <button id="submitBalasan">Kirim balasan</button>
+</div>
+
+<script>
+(function() {
+  const submitBalasanBtn = document.getElementById("submitBalasan");
+  const balasanInput = document.getElementById("pesanInput");
+
+  // Nomor WhatsApp
+  const NOMOR_WA = "6285624179853";
+
+  submitBalasanBtn.addEventListener("click", () => {
+    const pesan = balasanInput.value.trim();
+
+    if (!pesan) {
+      alert("Ketik pesan dulu sebelum kirim!");
+      return;
+    }
+
+    // Format pesan
+    const pesanFormatted =
+      `🎉 Pesan dari teman di halaman ulang tahun:\n\n"${pesan}"`;
+
+    // Encode pesan
+    const pesanEncoded = encodeURIComponent(pesanFormatted);
+
+    // Buka WhatsApp
+    const urlWA = `https://wa.me/${NOMOR_WA}?text=${pesanEncoded}`;
+    window.open(urlWA, "_blank");
+
+    // Kosongkan input
+    balasanInput.value = "";
+  });
+
+  // Bisa kirim dengan tombol Enter
+  balasanInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      submitBalasanBtn.click();
+    }
+  });
+})();
+</script>
 </section>
 
 <!-- =========================
@@ -2444,6 +2484,10 @@ window.addEventListener("load", () => {
         }, { once: true });
     });
 });
+  /* ================= KIRIM PESAN KE WHATSAPP ================= */
+
+
+
 </script>
 
 </body>
